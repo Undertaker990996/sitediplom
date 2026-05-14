@@ -1,1 +1,354 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Личный кабинет пациента - БКРБ</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background: #f0f7fc; font-family: 'Segoe UI', sans-serif; }
+        .navbar { background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .sidebar { background: white; border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .profile-photo { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; margin: 0 auto 15px; border: 3px solid #0a5c7e; }
+        .nav-pills .nav-link { color: #0a5c7e; border-radius: 30px; margin: 5px 0; }
+        .nav-pills .nav-link.active { background: #0a5c7e; color: white; }
+        .card { border: none; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .card-header { background: white; border-bottom: 2px solid #e8f3f9; font-weight: 600; }
+        .btn-primary { background: #0a5c7e; border: none; border-radius: 30px; }
+        .btn-primary:hover { background: #0e4a6e; }
+        .btn-success { border-radius: 30px; }
+        .btn-outline-primary { border-radius: 30px; }
+        .time-slot { display: inline-block; margin: 5px; padding: 8px 15px; background: #e8f3f9; border-radius: 30px; cursor: pointer; transition: 0.3s; }
+        .time-slot:hover { background: #0a5c7e; color: white; }
+        .time-slot.selected { background: #0a5c7e; color: white; }
+        .status-scheduled { background: #fff3cd; color: #856404; padding: 4px 12px; border-radius: 20px; font-size: 12px; display: inline-block; }
+        .status-completed { background: #d4edda; color: #155724; padding: 4px 12px; border-radius: 20px; font-size: 12px; display: inline-block; }
+        .status-canceled { background: #f8d7da; color: #721c24; padding: 4px 12px; border-radius: 20px; font-size: 12px; display: inline-block; }
+        .footer { background: #1a2a3a; color: white; text-align: center; padding: 20px; margin-top: 40px; }
+        .alert-success { border-radius: 12px; }
+        .modal-header { background: #0a5c7e; color: white; }
+        .btn-close-white { filter: brightness(0) invert(1); }
+    </style>
+</head>
+<body>
 
+<nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="dashboard-user.html">🏥 БКРБ - Личный кабинет</a>
+        <div>
+            <span class="me-3"><i class="fas fa-user"></i> Петров Иван Сидорович</span>
+            <a href="index.html" class="btn btn-danger btn-sm"><i class="fas fa-sign-out-alt"></i> Выйти</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Левая колонка - Профиль -->
+        <div class="col-md-4">
+            <div class="sidebar text-center">
+                <img src="https://placehold.co/150x150/e6f3f9/0a5c7e?text=Фото" alt="Фото профиля" class="profile-photo">
+                
+                <div class="mb-2">
+                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#photoModal"><i class="fas fa-camera"></i> Загрузить фото</button>
+                </div>
+                
+                <hr>
+                
+                <h5>Петров Иван Сидорович</h5>
+                <p class="text-muted small">ivan.petrov@mail.ru</p>
+                
+                <hr>
+                
+                <div class="text-start">
+                    <p><i class="fas fa-phone"></i> +7(916)123-45-01</p>
+                    <p><i class="fas fa-id-card"></i> Полис: 1234 567890 12</p>
+                    <p><i class="fas fa-calendar-alt"></i> Дата рожд.: 15.03.1985</p>
+                    <p><i class="fas fa-home"></i> г. Москва, ул. Ленина 10</p>
+                </div>
+            </div>
+            
+            <!-- Редактирование профиля -->
+            <div class="sidebar">
+                <h6><i class="fas fa-edit"></i> Редактировать профиль</h6>
+                <form>
+                    <div class="mb-2"><input type="text" class="form-control" placeholder="Фамилия" value="Петров"></div>
+                    <div class="mb-2"><input type="text" class="form-control" placeholder="Имя" value="Иван"></div>
+                    <div class="mb-2"><input type="text" class="form-control" placeholder="Отчество" value="Сидорович"></div>
+                    <div class="mb-2"><input type="date" class="form-control" value="1985-03-15"></div>
+                    <div class="mb-2"><input type="text" class="form-control" placeholder="Полис ОМС" value="1234 567890 12"></div>
+                    <div class="mb-2"><input type="tel" class="form-control" placeholder="Телефон" value="+7(916)123-45-01"></div>
+                    <div class="mb-2"><textarea class="form-control" placeholder="Адрес">г. Москва, ул. Ленина 10</textarea></div>
+                    <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#successModal">Сохранить изменения</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Правая колонка - Основной контент -->
+        <div class="col-md-8">
+            <!-- Запись на приём -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-calendar-plus"></i> Запись на приём
+                </div>
+                <div class="card-body">
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-5">
+                            <select class="form-select" id="doctorSelect">
+                                <option value="">Выберите врача</option>
+                                <option value="1">Анна Петрова (Терапевт)</option>
+                                <option value="2">Михаил Соколов (Хирург)</option>
+                                <option value="3">Елена Кузнецова (Педиатр)</option>
+                                <option value="4">Дмитрий Волков (Кардиолог)</option>
+                                <option value="5">Светлана Петрова (Невролог)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="date" class="form-control" id="appointmentDate" value="2026-05-20">
+                        </div>
+                        <div class="col-md-3">
+                            <button type="button" class="btn btn-primary w-100" id="showTimeBtn">Показать время</button>
+                        </div>
+                    </div>
+                    
+                    <div id="bookingForm" style="display: none;">
+                        <div class="mb-3">
+                            <label>Выберите услугу</label>
+                            <select class="form-select" id="serviceSelect">
+                                <option value="">Выберите услугу</option>
+                                <option value="1">Прием терапевта - 600 ₽</option>
+                                <option value="2">Прием хирурга - 700 ₽</option>
+                                <option value="3">Прием педиатра - 600 ₽</option>
+                                <option value="4">Прием кардиолога - 700 ₽</option>
+                                <option value="5">ЭКГ - 400 ₽</option>
+                                <option value="6">УЗИ - 1500 ₽</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label>Свободное время</label>
+                            <div id="timeSlots">
+                                <label class="time-slot"><input type="radio" name="slot" value="1" style="display: none;"> 09:00</label>
+                                <label class="time-slot"><input type="radio" name="slot" value="2" style="display: none;"> 10:00</label>
+                                <label class="time-slot"><input type="radio" name="slot" value="3" style="display: none;"> 11:00</label>
+                                <label class="time-slot"><input type="radio" name="slot" value="4" style="display: none;"> 12:00</label>
+                                <label class="time-slot"><input type="radio" name="slot" value="5" style="display: none;"> 14:00</label>
+                                <label class="time-slot"><input type="radio" name="slot" value="6" style="display: none;"> 15:00</label>
+                                <label class="time-slot"><input type="radio" name="slot" value="7" style="display: none;"> 16:00</label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label>Жалоба / Симптомы</label>
+                            <textarea class="form-control" rows="3" placeholder="Опишите, что вас беспокоит..."></textarea>
+                        </div>
+                        
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#appointmentModal">Записаться</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Расписание врачей на неделю -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-calendar-week"></i> Расписание врачей на неделю
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <button class="btn btn-sm btn-outline-primary">← Пред.</button>
+                        <button class="btn btn-sm btn-outline-primary">Текущая</button>
+                        <button class="btn btn-sm btn-outline-primary">След. →</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="table-dark">
+                                <tr><th>Врач</th>
+                                <th>20.05 (Пн)</th><th>21.05 (Вт)</th><th>22.05 (Ср)</th><th>23.05 (Чт)</th><th>24.05 (Пт)</th><th>25.05 (Сб)</th><th>26.05 (Вс)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Анна Петрова</strong><br><small>Терапевт</small></div>
+                                    <td><span class="badge bg-secondary">10:00 Занято</span><br><span class="text-muted">14:00 Свободно</span></td>
+                                    <td><span class="badge bg-success">09:00 (Вы)</span><br><span class="text-muted">15:00 Свободно</span></td>
+                                    <td><span class="text-muted">Весь день свободно</span></td>
+                                    <td><span class="badge bg-secondary">11:00 Занято</span><br><span class="text-muted">16:00 Свободно</span></td>
+                                    <td><span class="text-muted">Весь день свободно</span></td>
+                                    <td><span class="text-muted">Выходной</span></td>
+                                    <td><span class="text-muted">Выходной</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Михаил Соколов</strong><br><small>Хирург</small></td>
+                                    <td><span class="badge bg-secondary">09:00 Занято</span><br><span class="badge bg-secondary">11:00 Занято</span></td>
+                                    <td><span class="text-muted">14:00 Свободно</span></td>
+                                    <td><span class="text-muted">Весь день свободно</span></td>
+                                    <td><span class="badge bg-secondary">10:00 Занято</span></td>
+                                    <td><span class="text-muted">Весь день свободно</span></td>
+                                    <td><span class="text-muted">09:00-14:00</span></td>
+                                    <td><span class="text-muted">Выходной</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Елена Кузнецова</strong><br><small>Педиатр</small></td>
+                                    <td><span class="text-muted">Весь день свободно</span></td>
+                                    <td><span class="badge bg-secondary">10:00 Занято</span><br><span class="badge bg-secondary">15:00 Занято</span></td>
+                                    <td><span class="text-muted">Весь день свободно</span></td>
+                                    <td><span class="text-muted">Весь день свободно</span></td>
+                                    <td><span class="badge bg-secondary">09:00 Занято</span></td>
+                                    <td><span class="text-muted">Выходной</span></td>
+                                    <td><span class="text-muted">Выходной</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Прайс-лист -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-list-alt"></i> Прайс-лист на услуги
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr><th>Услуга</th><th>Цена</th><th>Длительность</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Прием терапевта</td><td><strong>600 ₽</strong></td><td>30 мин</td></tr>
+                                <tr><td>Прием хирурга</td><td><strong>700 ₽</strong></td><td>30 мин</td></tr>
+                                <tr><td>Прием педиатра</td><td><strong>600 ₽</strong></td><td>30 мин</td></tr>
+                                <tr><td>Прием кардиолога</td><td><strong>700 ₽</strong></td><td>30 мин</td></tr>
+                                <tr><td>Прием невролога</td><td><strong>700 ₽</strong></td><td>30 мин</td></tr>
+                                <tr><td>ЭКГ</td><td><strong>400 ₽</strong></td><td>20 мин</td></tr>
+                                <tr><td>УЗИ</td><td><strong>1500 ₽</strong></td><td>30 мин</td></tr>
+                                <tr><td>Общий анализ крови</td><td><strong>350 ₽</strong></td><td>15 мин</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Мои записи -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-history"></i> Мои записи на приём
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr><th>Дата/время</th><th>Врач</th><th>Специализация</th><th>Услуга</th><th>Статус</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>21.05.2026 09:00</td>
+                                    <td>Анна Петрова</td>
+                                    <td>Терапевт</td>
+                                    <td>Прием терапевта</td>
+                                    <td><span class="status-scheduled">📅 Запланирован</span></td>
+                                </tr>
+                                <tr>
+                                    <td>15.05.2026 10:00</td>
+                                    <td>Михаил Соколов</td>
+                                    <td>Хирург</td>
+                                    <td>Прием хирурга</td>
+                                    <td><span class="status-completed">✅ Выполнен</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно успеха -->
+<div class="modal fade" id="successModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-check-circle"></i> Успешно</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <i class="fas fa-check-circle" style="font-size: 50px; color: #28a745;"></i>
+                <p class="mt-3">Профиль успешно обновлён!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно фото -->
+<div class="modal fade" id="photoModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-camera"></i> Загрузить фото</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <input type="file" class="form-control" accept="image/*">
+                <p class="text-muted mt-2">Допустимые форматы: JPG, PNG, GIF</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Загрузить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно записи -->
+<div class="modal fade" id="appointmentModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-calendar-check"></i> Подтверждение записи</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <i class="fas fa-check-circle" style="font-size: 50px; color: #28a745;"></i>
+                <p class="mt-3">Вы успешно записаны на приём!</p>
+                <p class="text-muted">Дата: 20.05.2026 10:00<br>Врач: Анна Петрова<br>Услуга: Прием терапевта</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="footer">
+    <div class="container">© 2026 Базарно-Карабулакская районная больница | Личный кабинет пациента</div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Выбор временного слота
+    document.querySelectorAll('.time-slot').forEach(slot => {
+        slot.addEventListener('click', function() {
+            document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+            this.classList.add('selected');
+            let radio = this.querySelector('input[type="radio"]');
+            if (radio) radio.checked = true;
+        });
+    });
+    
+    // Показать форму записи
+    document.getElementById('showTimeBtn').addEventListener('click', function() {
+        const doctor = document.getElementById('doctorSelect').value;
+        const date = document.getElementById('appointmentDate').value;
+        if (doctor && date) {
+            document.getElementById('bookingForm').style.display = 'block';
+        } else {
+            alert('Выберите врача и дату');
+        }
+    });
+</script>
+</body>
+</html>
